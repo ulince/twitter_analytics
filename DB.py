@@ -12,9 +12,11 @@ class DB:
 
         try:
             result = collection.insert_one(document)
-            print(result)
+            return "Inserted document {}".format(result.inserted_id)
         except errors.DuplicateKeyError as e:
-            print(e.details)
+            return str(e.details)
+        except Exception as e:
+            return str(e)
 
     def bulk_insert(self, collection_name, documents:list):
         collection = self._db[collection_name]
@@ -25,9 +27,24 @@ class DB:
 
         try:
             result = bulk.execute()
-            pprint.pprint(result)
+            return "Inserted {} records".format(result['nInserted'])
         except errors.BulkWriteError as e:
-            pprint.pprint(e.details)
+            return str(e.details)
+        except Exception as e:
+            return str(e)
+
+    def insert_many(self, collection_name, documents:list):
+        collection = self._db[collection_name]
+        try:
+            result = collection.insert_many(documents, ordered=False)
+            return "Inserted documents"
+
+        except errors.BulkWriteError as e:
+            print(str(e.details['writeErrors']))
+        except Exception as e:
+            print(str(e))
+        finally:
+            return "Inserted documents"
 
 
     def find(self, collection_name, **kwargs):
